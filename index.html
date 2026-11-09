@@ -1,2 +1,161 @@
-<h1>minha loja</h1>
-<p>Bem vindo à nossa loja virtual</p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e9f1df">
+  <title>My Store | Bem-vindo</title>
+  <style>
+    :root { --verde:#244c3a; --musgo:#5d8064; --claro:#edf5e6; --creme:#fffdf8; --borda:#d7e4d1; --texto:#244137; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--texto); background:radial-gradient(circle at 15% 12%,#f8fce9,transparent 34%),linear-gradient(145deg,#e9f4dd,#f7f6e8 62%,#e0eee1); overflow-x:hidden; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    button:focus-visible,input:focus-visible { outline:3px solid #87ad83; outline-offset:3px; }
+    .shell { position:relative; width:min(1100px,calc(100% - 28px)); margin:auto; z-index:2; }
+    header { min-height:94px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand-icon { display:grid; place-items:center; width:44px; height:44px; border-radius:15px; background:#d4e8d2; font-size:25px; }
+    .brand strong { display:block; font-family:Georgia,serif; font-size:23px; letter-spacing:.3px; }
+    .brand small { color:#647f6a; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
+    .coffee { position:relative; width:63px; height:58px; display:grid; place-items:end center; font-size:38px; }
+    .steam { position:absolute; top:0; width:7px; height:21px; border-left:2px solid #67967b; border-radius:50%; opacity:0; animation:smoke 2.5s ease-in-out infinite; }
+    .steam.one { left:22px; } .steam.two { left:34px; animation-delay:.6s; } .steam.three { left:44px; animation-delay:1.2s; }
+    .coffee.off .steam { display:none; }
+    @keyframes smoke { 0%{transform:translateY(8px) rotate(-10deg);opacity:0} 40%{opacity:.9} 100%{transform:translateY(-12px) rotate(12deg);opacity:0} }
+    .layout { display:grid; grid-template-columns:.88fr 1.12fr; gap:30px; align-items:center; padding:30px 0 50px; }
+    .welcome { padding:30px 12px 60px 4px; }
+    .eyebrow { display:inline-block; font-size:12px; text-transform:uppercase; letter-spacing:2px; font-weight:700; color:#63826e; }
+    h1 { margin:18px 0; color:var(--verde); font:normal clamp(42px,5vw,68px)/1.08 Georgia,serif; letter-spacing:-1.4px; }
+    .welcome p { max-width:390px; line-height:1.8; color:#617565; }
+    .feature { display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:10px 14px; border-radius:30px; background:#ffffff9c; color:#557460; font-size:12px; }
+    .card { background:rgba(255,253,248,.93); border:1px solid rgba(255,255,255,.8); box-shadow:0 24px 65px rgba(48,91,62,.12); border-radius:27px; padding:30px; backdrop-filter:blur(12px); }
+    .tabs { display:grid; grid-template-columns:1fr 1fr; padding:5px; gap:5px; background:#eaf1e5; border-radius:14px; margin-bottom:22px; }
+    .tab { border:0; border-radius:11px; background:transparent; color:#65806c; font-weight:700; padding:13px 7px; }
+    .tab.active { background:white; color:var(--verde); box-shadow:0 2px 8px #34543d1a; }
+    h2 { font:normal 30px Georgia,serif; color:var(--verde); margin:0 0 5px; }
+    .hint { font-size:13px; color:#788777; margin:0 0 20px; line-height:1.5; }
+    .fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .full { grid-column:1 / -1; }
+    label { display:block; font-size:12px; font-weight:700; margin-bottom:6px; color:#476350; }
+    input:not([type=file]):not([type=checkbox]) { display:block; width:100%; border:1px solid var(--borda); border-radius:11px; padding:12px 13px; background:#fff; color:var(--texto); font-size:14px; }
+    input::placeholder { color:#a2b0a3; }
+    .section-title { grid-column:1/-1; margin:6px 0 -2px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:#7b9c7e; }
+    .photo-picker { border:1.5px dashed #a6c5a7; border-radius:12px; min-height:75px; padding:12px; display:flex; gap:11px; align-items:center; cursor:pointer; background:#f7fbf3; }
+    .avatar { width:45px; height:45px; border-radius:50%; display:grid; place-items:center; background:#e2ecdc; font-size:24px; background-position:center; background-size:cover; flex-shrink:0; }
+    .photo-picker span { color:#53755c; font-size:12px; font-weight:600; }
+    .photo-picker input { position:absolute; width:1px; height:1px; opacity:0; }
+    .captcha { display:flex; align-items:center; gap:9px; padding:14px; border:1px solid var(--borda); border-radius:12px; background:#f9faf7; font-size:13px; }
+    .captcha input { width:18px; height:18px; accent-color:var(--verde); }
+    .captcha small { margin-left:auto; color:#879487; font-size:10px; }
+    .primary { width:100%; border:0; border-radius:13px; padding:15px; background:var(--verde); color:#fff; font-weight:750; margin-top:19px; box-shadow:0 9px 18px #244c3a2b; }
+    .primary:hover { background:#35634b; }
+    .secondary { border:1px solid #acc5ac; border-radius:12px; padding:11px 13px; background:#fff; color:var(--verde); font-weight:700; }
+    .footnote { text-align:center; font-size:11px; line-height:1.6; color:#7c8a78; margin:13px 0 0; }
+    .preview { display:block; margin:12px auto 0; border:0; background:none; color:#467857; font-weight:750; text-decoration:underline; font-size:12px; }
+    .nature { pointer-events:none; position:fixed; inset:0; overflow:hidden; z-index:0; }
+    .branch { position:absolute; bottom:-60px; width:280px; height:470px; opacity:.3; }
+    .branch.left { left:-100px; transform:rotate(-10deg); }
+    .branch.right { right:-110px; transform:scaleX(-1) rotate(-10deg); }
+    .butterfly { position:absolute; font-size:27px; filter:drop-shadow(0 4px 3px #4b775225); animation:float 17s ease-in-out infinite alternate; }
+    .b1 { top:19%; left:7%; } .b2 { top:68%; left:17%; animation-delay:-7s; font-size:20px; }
+    .b3 { top:30%; right:8%; animation-delay:-11s; font-size:22px; }
+    @keyframes float { 0%{transform:translate(0,0) rotate(-10deg)} 48%{transform:translate(38px,-43px) rotate(12deg)} 100%{transform:translate(-12px,28px) rotate(-7deg)} }
+    .analysis { min-height:390px; position:relative; display:grid; align-content:center; justify-items:center; text-align:center; overflow:hidden; }
+    .analysis h2 { font-size:clamp(32px,7vw,51px); margin:18px 0 12px; display:inline-block; transform-origin:center; }
+    .analysis p { font-size:13px; color:#738575; }
+    .crow { position:absolute; font-size:29px; animation:birdFlight 9s ease-in-out infinite alternate; }
+    .crow.c1 { top:20%; left:8%; } .crow.c2 { top:34%; right:10%; animation-delay:-4s; }
+    .crow.c3 { bottom:23%; left:26%; animation-delay:-2s; }
+    .crow.perched { top:37%; left:52%; animation:peckWalk 13s ease-in-out infinite; }
+    @keyframes birdFlight { from{transform:translate(-18px,14px) rotate(-15deg)} to{transform:translate(40px,-25px) rotate(15deg)} }
+    @keyframes peckWalk { 0%,10%{transform:translate(-60px,0) rotate(0)} 15%{transform:translate(-60px,8px) rotate(28deg)} 18%{transform:translate(-60px,0)} 80%,100%{transform:translate(65px,0)} }
+    .analysis.resting .crow { animation:none; opacity:.35; }
+    .analysis.approved h2 { animation:drag 1.5s ease-in forwards; }
+    @keyframes drag { 0%{transform:translateX(0)} 25%{transform:translateX(20px) rotate(5deg)} 100%{transform:translateX(550px) rotate(12deg);opacity:0} }
+    .analysis.rejected h2 { animation:eaten 30s steps(24,end) forwards; }
+    @keyframes eaten { 0%{clip-path:inset(0 0 0 0);opacity:1} 100%{clip-path:inset(0 100% 0 0);opacity:0} }
+    .swarm { position:absolute; inset:0; pointer-events:none; }
+    .swarm span { position:absolute; font-size:28px; animation:swarm 1.8s ease-in-out infinite alternate; }
+    @keyframes swarm { from{transform:translate(-20px,-20px) rotate(-20deg)} to{transform:translate(24px,25px) rotate(22deg)} }
+    .demo-tools { display:flex; gap:9px; flex-wrap:wrap; justify-content:center; margin-top:25px; }
+    .demo-tools button { font-size:12px; }
+    .demo-note { margin-top:10px; font-size:11px!important; color:#859987!important; }
+    .result { font:normal 24px Georgia,serif; color:var(--verde); margin-top:12px; }
+    footer { padding:15px 0 25px; font-size:12px; text-align:center; color:#7b9481; }
+    [hidden] { display:none!important; }
+    @media(max-width:760px) { header{min-height:78px} .layout{grid-template-columns:1fr;gap:8px;padding:0 0 25px} .welcome{padding:21px 7px 5px;text-align:center} h1{font-size:39px;margin:9px 0} .welcome p{margin:0 auto;font-size:13px} .feature{margin-top:11px} .card{padding:20px 16px;border-radius:22px} .branch{opacity:.15} .b1{top:11%;left:2%} .b3{top:25%;right:2%} .fields{gap:12px} }
+    @media(max-width:420px) { .fields{grid-template-columns:1fr} .section-title,.full{grid-column:1} .brand strong{font-size:21px} .welcome h1{font-size:36px} }
+    @media(prefers-reduced-motion:reduce) { .steam,.butterfly,.crow,.analysis h2,.swarm span { animation:none!important; } }
+  </style>
+</head>
+<body>
+  <div class="nature" aria-hidden="true">
+    <svg class="branch left" viewBox="0 0 280 470" fill="none"><path d="M65 500Q105 270 160 30" stroke="#659469" stroke-width="5"/>
+      <g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g>
+      <g fill="#f2b0c7"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
+    <svg class="branch right" viewBox="0 0 280 470" fill="none"><path d="M65 500Q105 270 160 30" stroke="#659469" stroke-width="5"/><g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g><g fill="#e8b7e5"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
+    <span class="butterfly b1">🦋</span><span class="butterfly b2">🦋</span><span class="butterfly b3">🦋</span>
+  </div>
+  <div class="shell">
+    <header>
+      <div class="brand"><div class="brand-icon" aria-hidden="true">🌿</div><div><strong>My Store</strong><small>Nosso pequeno jardim</small></div></div>
+      <div class="coffee" title="Xícara indicando loja online — apenas visual de demonstração" aria-label="Xícara com fumaça (prévia de loja online)"><i class="steam one"></i><i class="steam two"></i><i class="steam three"></i>☕</div>
+    </header>
+    <main class="layout">
+      <section class="welcome"><span class="eyebrow">✦ Seja bem-vindo ✦</span><h1>Um lugar<br>para florescer.</h1><p>Uma experiência de compras tranquila, feita com carinho para você. Entre no nosso jardim.</p><div class="feature">🌼 Natureza, leveza e boas descobertas</div></section>
+      <div class="card" id="card">
+        <div id="entry">
+          <div class="tabs" role="tablist" aria-label="Acesso"><button type="button" class="tab active" id="signTab" role="tab" aria-selected="true">Criar conta</button><button type="button" class="tab" id="loginTab" role="tab" aria-selected="false">Entrar</button></div>
+          <div id="signup">
+            <h2>Seu cadastro 🌱</h2><p class="hint">Preencha seus dados para solicitar acesso à loja.</p>
+            <form id="registerForm">
+              <div class="fields">
+                <div class="full"><label for="name">Nome completo *</label><input id="name" name="name" autocomplete="name" placeholder="Seu nome" required></div>
+                <div><label for="phone">WhatsApp *</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required></div>
+                <div><label for="email">E-mail *</label><input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required></div>
+                <div class="full"><label for="password">Senha *</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Pelo menos 8 caracteres" required></div>
+                <div class="full"><label for="photo">Sua foto de perfil * (obrigatória)</label><label for="photo" class="photo-picker"><span class="avatar" id="avatar" aria-hidden="true">📷</span><span>Toque aqui para escolher uma foto normal</span><input id="photo" type="file" accept="image/*" required></label></div>
+                <div class="section-title">Quem indicou você</div>
+                <div><label for="refEmail">E-mail da indicação *</label><input id="refEmail" type="email" placeholder="indicador@email.com" required></div>
+                <div><label for="refPhone">Telefone da indicação *</label><input id="refPhone" type="tel" placeholder="WhatsApp de quem indicou" required></div>
+                <div class="full"><label for="refPhoto">Foto da indicação (opcional)</label><input id="refPhoto" type="file" accept="image/*"></div>
+                <div class="full"><label class="captcha"><input type="checkbox" id="robot" required> Não sou um robô <small>Prévia visual, sem verificação real</small></label></div>
+              </div>
+              <button class="primary" type="submit">Solicitar meu acesso →</button>
+            </form>
+          </div>
+          <div id="login" hidden><h2>Bom ter você aqui ☕</h2><p class="hint">Entre com o e-mail e a senha da sua conta.</p><form id="loginForm"><label for="loginEmail">E-mail</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="voce@email.com"><br><label for="loginPassword">Senha</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"><button type="submit" class="primary">Entrar →</button></form></div>
+          <p class="footnote">Esta é uma prévia. Nenhum cadastro é enviado ou armazenado.</p>
+          <button type="button" class="preview" id="viewAnalysis">Visualizar tela “Em análise” sem preencher</button>
+        </div>
+        <section id="waiting" hidden aria-live="polite"><div class="analysis" id="analysis"><span class="crow c1" aria-hidden="true">🐦‍⬛</span><span class="crow c2" aria-hidden="true">🐦‍⬛</span><span class="crow c3" aria-hidden="true">🐦‍⬛</span><span class="crow perched" aria-hidden="true">🐦‍⬛</span><div class="swarm" id="swarm" aria-hidden="true"></div><div id="statusBody"><h2 id="statusTitle">Em análise</h2><p id="statusNote">Aguardando a decisão do administrador.</p></div></div><div class="demo-tools"><button type="button" class="secondary" id="approve">Prévia: ADM aceita</button><button type="button" class="secondary" id="reject">Prévia: ADM recusa</button><button type="button" class="secondary" id="restart">Voltar ao início</button></div><p class="footnote">Botões apenas para testar as animações. Não são um painel ADM real.</p></section>
+      </div>
+    </main>
+    <footer>✿ My Store · Protótipo visual da primeira tela · Feito para celular</footer>
+  </div>
+  <script>
+    const entry=document.getElementById('entry'), waiting=document.getElementById('waiting');
+    const signup=document.getElementById('signup'),login=document.getElementById('login');
+    const signTab=document.getElementById('signTab'),loginTab=document.getElementById('loginTab');
+    const analysis=document.getElementById('analysis'),title=document.getElementById('statusTitle');
+    const statusNote=document.getElementById('statusNote'),swarm=document.getElementById('swarm');
+    let timers=[];
+    function later(fn,ms){timers.push(setTimeout(fn,ms));}
+    function clearTimers(){timers.forEach(clearTimeout);timers=[];}
+    function selectTab(mode){let isLogin=mode==='login';signup.hidden=isLogin;login.hidden=!isLogin;signTab.classList.toggle('active',!isLogin);loginTab.classList.toggle('active',isLogin);signTab.setAttribute('aria-selected',String(!isLogin));loginTab.setAttribute('aria-selected',String(isLogin));}
+    signTab.addEventListener('click',()=>selectTab('signup'));
+    loginTab.addEventListener('click',()=>selectTab('login'));
+    const photo=document.getElementById('photo');let previewUrl;
+    photo.addEventListener('change',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);const file=photo.files?.[0];if(file){previewUrl=URL.createObjectURL(file);const avatar=document.getElementById('avatar');avatar.style.backgroundImage=`url("${previewUrl}")`;avatar.textContent='';}});
+    function showWaiting(){clearTimers();entry.hidden=true;waiting.hidden=false;analysis.className='analysis';swarm.innerHTML='';document.getElementById('statusBody').hidden=false;title.textContent='Em análise';statusNote.textContent='Aguardando a decisão do administrador.';title.style.display='';document.getElementById('approve').disabled=false;document.getElementById('reject').disabled=false;later(()=>analysis.classList.add('resting'),120000);}
+    document.getElementById('viewAnalysis').addEventListener('click',showWaiting);
+    document.getElementById('registerForm').addEventListener('submit',e=>{e.preventDefault();showWaiting();});
+    document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();showWaiting();});
+    function lockDemo(){clearTimers();document.getElementById('approve').disabled=true;document.getElementById('reject').disabled=true;}
+    document.getElementById('approve').addEventListener('click',()=>{lockDemo();analysis.classList.add('approved');statusNote.textContent='';later(()=>{document.getElementById('statusBody').innerHTML='<div class="result">Acesso aprovado 🌿</div><p>Prévia: o catálogo será criado em outra etapa.</p>';},1600);});
+    document.getElementById('reject').addEventListener('click',()=>{lockDemo();analysis.classList.add('rejected');statusNote.textContent='';for(let i=0;i<22;i++){let crow=document.createElement('span');crow.textContent='🐦‍⬛';crow.style.left=(8+(i*29)%82)+'%';crow.style.top=(13+(i*23)%67)+'%';crow.style.animationDelay=(-i*.17)+'s';swarm.appendChild(crow);}later(()=>{swarm.innerHTML='';document.getElementById('statusBody').innerHTML='<div class="result">Acesso bloqueado</div><p>Apenas uma simulação visual; nenhum usuário foi banido.</p>';},30000);});
+    document.getElementById('restart').addEventListener('click',()=>{clearTimers();waiting.hidden=true;entry.hidden=false;location.reload();});
+  </script>
+</body>
+</html>
