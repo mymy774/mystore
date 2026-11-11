@@ -345,5 +345,77 @@
     document.getElementById('reject').addEventListener('click',()=>{lockDemo();analysis.classList.add('rejected');statusNote.textContent='';for(let i=0;i<22;i++){let crow=document.createElement('span');crow.textContent='🐦‍⬛';crow.style.left=(8+(i*29)%82)+'%';crow.style.top=(13+(i*23)%67)+'%';crow.style.animationDelay=(-i*.17)+'s';swarm.appendChild(crow);}later(()=>{swarm.innerHTML='';document.getElementById('statusBody').innerHTML='<div class="result">Acesso bloqueado</div><p>Apenas uma simulação visual; nenhum usuário foi banido.</p>';},30000);});
     document.getElementById('restart').addEventListener('click',()=>{clearTimers();waiting.hidden=true;entry.hidden=false;location.reload();});
   </script>
+  <!-- CATÁLOGO DE PRODUTOS MY STORE -->
+<section id="catalogo-produtos">
+  <h2>Nossos produtos</h2>
+  <div id="lista-produtos">Carregando produtos...</div>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD19nDStx93XHAc0DuVAN2PcyvtXi9RvBo",
+  authDomain: "mystore-c3c60.firebaseapp.com",
+  projectId: "mystore-c3c60",
+  storageBucket: "mystore-c3c60.firebasestorage.app",
+  messagingSenderId: "695597457784",
+  appId: "1:695597457784:web:d9acbb86b0fc454902688d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function carregarProdutos() {
+  const lista = document.getElementById("lista-produtos");
+
+  try {
+    const consulta = query(
+      collection(db, "produtos"),
+      where("ativo", "==", true)
+    );
+
+    const resultado = await getDocs(consulta);
+    lista.replaceChildren();
+
+    if (resultado.empty) {
+      lista.textContent = "Nenhum produto disponível.";
+      return;
+    }
+
+    resultado.forEach(documento => {
+      const produto = documento.data();
+      const item = document.createElement("div");
+      const nome = document.createElement("h3");
+      const preco = document.createElement("p");
+
+      nome.textContent = produto.nome || "Produto";
+      preco.textContent = (
+        Number(produto.preco_centavos) / 100
+      ).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+
+      item.append(nome, preco);
+      lista.appendChild(item);
+    });
+  } catch (erro) {
+    console.error(erro);
+    lista.textContent = "Erro ao carregar produtos.";
+  }
+}
+
+carregarProdutos();
+</script>
+<!-- FIM DO CATÁLOGO -->
 </body>
 </html>
