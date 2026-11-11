@@ -95,101 +95,144 @@
       <g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g>
       <g fill="#f2b0c7"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
     <svg class="branch right" viewBox="0 0 280 470" fill="none"><path d="M65 500Q105 270 160 30" stroke="#659469" stroke-width="5"/><g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g><g fill="#e8b7e5"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
-    <style>
-  .ave-real {
-    position: absolute;
-    left: -120px;
-    width: 100px;
-    height: 70px;
+   <!-- INÍCIO: PÁSSAROS EM SILHUETA -->
+<style>
+  #ceu-passaros {
+    position: fixed;
+    inset: 0;
     pointer-events: none;
-    animation: percurso 18s linear infinite;
+    overflow: hidden;
+    z-index: 5;
+  }
+
+  .passaro-sombra {
+    position: absolute;
+    left: -150px;
+    top: var(--altura);
+    width: var(--tamanho);
+    height: auto;
+    overflow: visible;
+    opacity: .9;
+    animation: atravessar var(--tempo) linear infinite;
     animation-delay: var(--atraso);
+    filter: drop-shadow(0 1px 1px #0002);
   }
 
-  .ave1 { bottom: 360px; --atraso: 0s; }
-  .ave2 { bottom: 305px; --atraso: -4.5s; }
-  .ave3 { bottom: 395px; --atraso: -9s; }
-  .ave4 { bottom: 335px; --atraso: -13.5s; }
-
-  .asa-voando {
-    transform-origin: 56px 37px;
-    animation:
-      bater .38s ease-in-out infinite alternate,
-      mostrarVoo 18s step-end infinite;
-    animation-delay: 0s, var(--atraso);
+  .passaro-sombra .asa-esquerda {
+    transform-origin: 48px 47px;
+    animation: asaEsquerda .42s ease-in-out infinite alternate;
   }
 
-  .asa-pousada {
-    opacity: 0;
-    animation: mostrarPouso 18s step-end infinite;
-    animation-delay: var(--atraso);
+  .passaro-sombra .asa-direita {
+    transform-origin: 54px 47px;
+    animation: asaDireita .42s ease-in-out infinite alternate;
   }
 
-  @keyframes bater {
-    from { transform: rotate(-35deg); }
-    to { transform: rotate(40deg); }
+  @keyframes asaEsquerda {
+    from { transform: rotate(-18deg) scaleY(.7); }
+    to { transform: rotate(18deg) scaleY(1.25); }
   }
 
-  @keyframes percurso {
+  @keyframes asaDireita {
+    from { transform: rotate(16deg) scaleY(1.2); }
+    to { transform: rotate(-16deg) scaleY(.65); }
+  }
+
+  @keyframes atravessar {
     0% {
-      transform: translate(-90px, 60px) scale(.8);
+      transform: translate(-100px, 25px) scale(.8);
     }
-    25% {
-      transform: translate(32vw, -16px) scale(.9);
+    35% {
+      transform: translate(38vw, -28px) scale(1);
     }
-    58%, 78% {
-      transform: translate(calc(100vw - 50px), 0) scale(.8);
+    55% {
+      transform: translate(58vw, 5px) scale(.95);
+    }
+    68% {
+      transform: translate(69vw, 5px) scale(.95);
     }
     100% {
-      transform: translate(calc(100vw + 220px), -55px) scale(.9);
+      transform: translate(calc(100vw + 250px), -45px)
+                 scale(.85);
     }
-  }
-
-  @keyframes mostrarVoo {
-    0%, 57% { opacity: 1; }
-    58%, 77% { opacity: 0; }
-    78%, 100% { opacity: 1; }
-  }
-
-  @keyframes mostrarPouso {
-    0%, 57% { opacity: 0; }
-    58%, 77% { opacity: 1; }
-    78%, 100% { opacity: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ave-real, .asa-voando, .asa-pousada {
+    .passaro-sombra,
+    .passaro-sombra .asa-esquerda,
+    .passaro-sombra .asa-direita {
       animation: none !important;
     }
-    .asa-voando { opacity: 0; }
-    .asa-pousada { opacity: 1; }
+    #ceu-passaros { display: none; }
   }
 </style>
 
-<svg class="ave-real ave1" viewBox="0 0 110 76">
-  <path d="M30 38 L6 27 L12 49Z" fill="#577f81"/>
-  <path d="M48 34 Q25 3 17 8 Q16 27 38 42Z" fill="#7da7a2"/>
-  <ellipse cx="56" cy="40" rx="31" ry="17" fill="#7f9b8c"/>
-  <ellipse cx="66" cy="45" rx="17" ry="10" fill="#d5ccad"/>
-  <circle cx="84" cy="28" r="13" fill="#789786"/>
-  <path d="M95 28 L109 32 L95 36Z" fill="#cb935b"/>
-  <circle cx="88" cy="25" r="2" fill="#142b25"/>
-  <path class="asa-voando"
-        d="M57 36 Q35 3 24 6 Q28 31 55 49Z"
-        fill="#4a746f"/>
-  <path class="asa-pousada"
-        d="M55 35 Q43 38 36 49 Q51 53 65 42Z"
-        fill="#4a746f"/>
-</svg>
+<div id="ceu-passaros" aria-hidden="true">
+  <svg class="passaro-sombra"
+       viewBox="0 0 120 100">
+    <!-- Corpo e cauda -->
+    <path fill="#101010"
+      d="M28 54 Q44 43 62 45
+         Q74 42 83 48
+         L105 45 L94 53
+         L82 56 Q71 67 56 62
+         L28 64 L11 76 L23 58 Z"/>
+
+    <!-- Asa esquerda -->
+    <path class="asa-esquerda" fill="#080808"
+      d="M49 48 Q32 30 18 7
+         Q18 30 27 44
+         L13 32 Q21 55 44 61
+         Q50 57 49 48Z"/>
+
+    <!-- Asa direita -->
+    <path class="asa-direita" fill="#080808"
+      d="M54 49 Q67 28 79 9
+         Q84 29 71 47
+         L86 35 Q77 57 58 62
+         Q52 58 54 49Z"/>
+
+    <!-- Cabeça e bico -->
+    <path fill="#080808"
+      d="M78 44 Q85 38 92 43
+         L102 47 L91 49
+         Q84 55 78 51Z"/>
+  </svg>
+</div>
 
 <script>
-  const primeiraAve = document.querySelector('.ave-real.ave1');
-  for (let numero = 2; numero <= 4; numero++) {
-    const ave = primeiraAve.cloneNode(true);
-    ave.classList.replace('ave1', ave${numero});
-    primeiraAve.parentNode.appendChild(ave);
-  }
+(function () {
+  const ceu = document.getElementById("ceu-passaros");
+  if (!ceu || ceu.dataset.iniciado) return;
+  ceu.dataset.iniciado = "sim";
+
+  const original = ceu.querySelector(".passaro-sombra");
+
+  const aves = [
+    ["12%", "65px", "19s", "0s"],
+    ["25%", "85px", "23s", "-7s"],
+    ["38%", "55px", "17s", "-12s"],
+    ["49%", "95px", "26s", "-4s"],
+    ["62%", "70px", "21s", "-16s"],
+    ["74%", "60px", "24s", "-10s"],
+    ["85%", "80px", "28s", "-20s"]
+  ];
+
+  aves.forEach((dados, indice) => {
+    const ave = indice === 0
+      ? original
+      : original.cloneNode(true);
+
+    ave.style.setProperty("--altura", dados[0]);
+    ave.style.setProperty("--tamanho", dados[1]);
+    ave.style.setProperty("--tempo", dados[2]);
+    ave.style.setProperty("--atraso", dados[3]);
+
+    if (indice > 0) ceu.appendChild(ave);
+  });
+})();
 </script>
+<!-- FIM: PÁSSAROS EM SILHUETA -->
   </div>
   <div class="shell">
     <header>
