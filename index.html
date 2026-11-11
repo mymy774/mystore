@@ -95,7 +95,101 @@
       <g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g>
       <g fill="#f2b0c7"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
     <svg class="branch right" viewBox="0 0 280 470" fill="none"><path d="M65 500Q105 270 160 30" stroke="#659469" stroke-width="5"/><g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g><g fill="#e8b7e5"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
-    <span class="butterfly b1">🦋</span><span class="butterfly b2">🦋</span><span class="butterfly b3">🦋</span>
+    <style>
+  .ave-real {
+    position: absolute;
+    left: -120px;
+    width: 100px;
+    height: 70px;
+    pointer-events: none;
+    animation: percurso 18s linear infinite;
+    animation-delay: var(--atraso);
+  }
+
+  .ave1 { bottom: 360px; --atraso: 0s; }
+  .ave2 { bottom: 305px; --atraso: -4.5s; }
+  .ave3 { bottom: 395px; --atraso: -9s; }
+  .ave4 { bottom: 335px; --atraso: -13.5s; }
+
+  .asa-voando {
+    transform-origin: 56px 37px;
+    animation:
+      bater .38s ease-in-out infinite alternate,
+      mostrarVoo 18s step-end infinite;
+    animation-delay: 0s, var(--atraso);
+  }
+
+  .asa-pousada {
+    opacity: 0;
+    animation: mostrarPouso 18s step-end infinite;
+    animation-delay: var(--atraso);
+  }
+
+  @keyframes bater {
+    from { transform: rotate(-35deg); }
+    to { transform: rotate(40deg); }
+  }
+
+  @keyframes percurso {
+    0% {
+      transform: translate(-90px, 60px) scale(.8);
+    }
+    25% {
+      transform: translate(32vw, -16px) scale(.9);
+    }
+    58%, 78% {
+      transform: translate(calc(100vw - 50px), 0) scale(.8);
+    }
+    100% {
+      transform: translate(calc(100vw + 220px), -55px) scale(.9);
+    }
+  }
+
+  @keyframes mostrarVoo {
+    0%, 57% { opacity: 1; }
+    58%, 77% { opacity: 0; }
+    78%, 100% { opacity: 1; }
+  }
+
+  @keyframes mostrarPouso {
+    0%, 57% { opacity: 0; }
+    58%, 77% { opacity: 1; }
+    78%, 100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ave-real, .asa-voando, .asa-pousada {
+      animation: none !important;
+    }
+    .asa-voando { opacity: 0; }
+    .asa-pousada { opacity: 1; }
+  }
+</style>
+
+<svg class="ave-real ave1" viewBox="0 0 110 76">
+  <path d="M30 38 L6 27 L12 49Z" fill="#577f81"/>
+  <path d="M48 34 Q25 3 17 8 Q16 27 38 42Z" fill="#7da7a2"/>
+  <ellipse cx="56" cy="40" rx="31" ry="17" fill="#7f9b8c"/>
+  <ellipse cx="66" cy="45" rx="17" ry="10" fill="#d5ccad"/>
+  <circle cx="84" cy="28" r="13" fill="#789786"/>
+  <path d="M95 28 L109 32 L95 36Z" fill="#cb935b"/>
+  <circle cx="88" cy="25" r="2" fill="#142b25"/>
+  <path class="asa-voando"
+        d="M57 36 Q35 3 24 6 Q28 31 55 49Z"
+        fill="#4a746f"/>
+  <path class="asa-pousada"
+        d="M55 35 Q43 38 36 49 Q51 53 65 42Z"
+        fill="#4a746f"/>
+</svg>
+
+<script>
+  const primeiraAve = document.querySelector('.ave-real.ave1');
+  for (let numero = 2; numero <= 4; numero++) {
+    const ave = primeiraAve.cloneNode(true);
+    ave.classList.replace('ave1', ave${numero});
+    primeiraAve.parentNode.appendChild(ave);
+  }
+</script>
   </div>
   <div class="shell">
     <header>
@@ -146,7 +240,7 @@
     function selectTab(mode){let isLogin=mode==='login';signup.hidden=isLogin;login.hidden=!isLogin;signTab.classList.toggle('active',!isLogin);loginTab.classList.toggle('active',isLogin);signTab.setAttribute('aria-selected',String(!isLogin));loginTab.setAttribute('aria-selected',String(isLogin));}
     signTab.addEventListener('click',()=>selectTab('signup'));
     loginTab.addEventListener('click',()=>selectTab('login'));
-    const photo=document.getElementById('photo');let previewUrl;
+    const photo=document.getElementById('photo');let previewUrl; 
     photo.addEventListener('change',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);const file=photo.files?.[0];if(file){previewUrl=URL.createObjectURL(file);const avatar=document.getElementById('avatar');avatar.style.backgroundImage=`url("${previewUrl}")`;avatar.textContent='';}});
     function showWaiting(){clearTimers();entry.hidden=true;waiting.hidden=false;analysis.className='analysis';swarm.innerHTML='';document.getElementById('statusBody').hidden=false;title.textContent='Em análise';statusNote.textContent='Aguardando a decisão do administrador.';title.style.display='';document.getElementById('approve').disabled=false;document.getElementById('reject').disabled=false;later(()=>analysis.classList.add('resting'),120000);}
     document.getElementById('viewAnalysis').addEventListener('click',showWaiting);
