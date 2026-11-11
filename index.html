@@ -95,109 +95,160 @@
       <g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g>
       <g fill="#f2b0c7"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
     <svg class="branch right" viewBox="0 0 280 470" fill="none"><path d="M65 500Q105 270 160 30" stroke="#659469" stroke-width="5"/><g fill="#7dac7b"><ellipse cx="102" cy="375" rx="19" ry="46" transform="rotate(-50 102 375)"/><ellipse cx="128" cy="295" rx="19" ry="47" transform="rotate(48 128 295)"/><ellipse cx="143" cy="210" rx="16" ry="43" transform="rotate(-48 143 210)"/><ellipse cx="163" cy="120" rx="17" ry="44" transform="rotate(48 163 120)"/></g><g fill="#e8b7e5"><circle cx="162" cy="32" r="15"/><circle cx="184" cy="50" r="15"/><circle cx="174" cy="78" r="15"/><circle cx="145" cy="73" r="15"/><circle cx="140" cy="48" r="15"/></g><circle cx="161" cy="55" r="10" fill="#e1b866"/></svg>
-   <!-- INÍCIO: PÁSSAROS EM SILHUETA -->
-<style>
-  #ceu-passaros {
+  <style>
+  #efeito-natureza {
     position: fixed;
     inset: 0;
-    pointer-events: none;
     overflow: hidden;
+    pointer-events: none;
     z-index: 5;
+    contain: layout style;
   }
 
-  .passaro-sombra {
+  .particula-vento {
     position: absolute;
-    left: -150px;
+    left: -100px;
     top: var(--altura);
-    width: var(--tamanho);
-    height: auto;
-    overflow: visible;
-    opacity: .9;
-    animation: atravessar var(--tempo) linear infinite;
+    opacity: 0;
+    animation: ventoMover var(--duracao) linear infinite;
     animation-delay: var(--atraso);
-    filter: drop-shadow(0 1px 1px #0002);
+    will-change: transform, opacity;
   }
 
-  .passaro-sombra .asa-esquerda {
-    transform-origin: 48px 47px;
-    animation: asaEsquerda .42s ease-in-out infinite alternate;
+  .poeira {
+    width: var(--tamanho);
+    height: var(--tamanho);
+    border-radius: 50%;
+    background: rgba(157, 143, 116, 0.38);
+    filter: blur(1px);
   }
 
-  .passaro-sombra .asa-direita {
-    transform-origin: 54px 47px;
-    animation: asaDireita .42s ease-in-out infinite alternate;
+  .rajada {
+    width: var(--tamanho);
+    height: 1px;
+    border-radius: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(160, 166, 164, 0.25),
+      transparent
+    );
+    filter: blur(1px);
   }
 
-  @keyframes asaEsquerda {
-    from { transform: rotate(-18deg) scaleY(.7); }
-    to { transform: rotate(18deg) scaleY(1.25); }
+  .folha {
+    width: var(--tamanho);
+    height: calc(var(--tamanho) * 0.55);
+    background: var(--cor);
+    border-radius: 90% 0 90% 0;
+    transform-origin: center;
+    animation: folhaGirar 3s ease-in-out infinite alternate;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
 
-  @keyframes asaDireita {
-    from { transform: rotate(16deg) scaleY(1.2); }
-    to { transform: rotate(-16deg) scaleY(.65); }
-  }
-
-  @keyframes atravessar {
+  @keyframes ventoMover {
     0% {
-      transform: translate(-100px, 25px) scale(.8);
+      transform: translate3d(-10vw, 0, 0);
+      opacity: 0;
     }
-    35% {
-      transform: translate(38vw, -28px) scale(1);
+    12% { opacity: 0.65; }
+    45% {
+      transform: translate3d(45vw, -28px, 0);
     }
-    55% {
-      transform: translate(58vw, 5px) scale(.95);
+    85% { opacity: 0.55; }
+    100% {
+      transform: translate3d(115vw, 32px, 0);
+      opacity: 0;
     }
-    68% {
-      transform: translate(69vw, 5px) scale(.95);
+  }
+
+  @keyframes folhaGirar {
+    0% {
+      rotate: -25deg;
+      scale: 0.85;
+    }
+    50% {
+      rotate: 65deg;
+      scale: 1;
     }
     100% {
-      transform: translate(calc(100vw + 250px), -45px)
-                 scale(.85);
+      rotate: 150deg;
+      scale: 0.9;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .passaro-sombra,
-    .passaro-sombra .asa-esquerda,
-    .passaro-sombra .asa-direita {
-      animation: none !important;
+    #efeito-natureza {
+      display: none;
     }
-    #ceu-passaros { display: none; }
   }
 </style>
 
-<div id="ceu-passaros" aria-hidden="true">
-  <svg class="passaro-sombra"
-       viewBox="0 0 120 100">
-    <!-- Corpo e cauda -->
-    <path fill="#101010"
-      d="M28 54 Q44 43 62 45
-         Q74 42 83 48
-         L105 45 L94 53
-         L82 56 Q71 67 56 62
-         L28 64 L11 76 L23 58 Z"/>
+<div id="efeito-natureza" aria-hidden="true"></div>
 
-    <!-- Asa esquerda -->
-    <path class="asa-esquerda" fill="#080808"
-      d="M49 48 Q32 30 18 7
-         Q18 30 27 44
-         L13 32 Q21 55 44 61
-         Q50 57 49 48Z"/>
+<script>
+(function () {
+  const ceu = document.getElementById("efeito-natureza");
+  if (!ceu || ceu.dataset.iniciado) return;
+  ceu.dataset.iniciado = "sim";
 
-    <!-- Asa direita -->
-    <path class="asa-direita" fill="#080808"
-      d="M54 49 Q67 28 79 9
-         Q84 29 71 47
-         L86 35 Q77 57 58 62
-         Q52 58 54 49Z"/>
+  // Remove os pássaros da versão anterior.
+  document.getElementById("ceu-passaros")?.remove();
 
-    <!-- Cabeça e bico -->
-    <path fill="#080808"
-      d="M78 44 Q85 38 92 43
-         L102 47 L91 49
-         Q84 55 78 51Z"/>
-  </svg>
+  const coresFolhas = [
+    "#788b56",
+    "#a39b59",
+    "#b08a56",
+    "#72805a",
+    "#9b7650"
+  ];
+
+  function criarParticula(tipo, indice) {
+    const elemento = document.createElement("div");
+    elemento.className = "particula-vento " + tipo;
+
+    const altura = (indice * 37 + 13) % 95;
+    const duracao = 12 + ((indice * 7) % 19);
+    const atraso = -((indice * 3.7) % 30);
+
+    let tamanho;
+
+    if (tipo === "poeira") {
+      tamanho = 2 + (indice % 4);
+    } else if (tipo === "rajada") {
+      tamanho = 35 + (indice % 5) * 20;
+    } else {
+      tamanho = 9 + (indice % 5) * 3;
+      elemento.style.setProperty(
+        "--cor",
+        coresFolhas[indice % coresFolhas.length]
+      );
+    }
+
+    elemento.style.setProperty("--altura", altura + "%");
+    elemento.style.setProperty("--duracao", duracao + "s");
+    elemento.style.setProperty("--atraso", atraso + "s");
+    elemento.style.setProperty("--tamanho", tamanho + "px");
+
+    ceu.appendChild(elemento);
+  }
+
+  // Poeira leve.
+  for (let i = 0; i < 24; i++) {
+    criarParticula("poeira", i);
+  }
+
+  // Marcas sutis de vento.
+  for (let i = 0; i < 9; i++) {
+    criarParticula("rajada", i + 24);
+  }
+
+  // Poucas folhas espalhadas.
+  for (let i = 0; i < 7; i++) {
+    criarParticula("folha", i + 33);
+  }
+})();
+</script>
 </div>
 
 <script>
