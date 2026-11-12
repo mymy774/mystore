@@ -417,5 +417,19 @@ async function carregarProdutos() {
 carregarProdutos();
 </script>
 <!-- FIM DO CATÁLOGO -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+  const firebaseConfig = {
+  apiKey: "AIzaSyD19nDStx93XHAc0DuVAN2PcyvtXi9RvBo",
+  authDomain: "mystore-c3c60.firebaseapp.com",
+  projectId: "mystore-c3c60",
+  storageBucket: "mystore-c3c60.firebasestorage.app",
+  messagingSenderId: "695597457784",
+  appId: "1:695597457784:web:d9acbb86b0fc454902688d"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+</script>
 </body>
 </html>
