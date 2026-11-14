@@ -417,7 +417,34 @@ async function carregarProdutos() {
 carregarProdutos();
 </script>
 <!-- FIM DO CATÁLOGO -->
-<script type="module">
+<!-- CADASTRO E LOGIN DOS CLIENTES -->
+<section id="area-conta">
+  <h2>Minha conta - My Store</h2>
+
+  <form id="form-cadastro">
+    <h3>Criar minha conta</h3>
+
+    <input id="cad-nome" type="text"
+      placeholder="Nome completo" required>
+
+    <input id="cad-whatsapp" type="tel"
+      placeholder="WhatsApp com DDD" required>
+
+    <input id="cad-email" type="email"
+      placeholder="E-mail" required>
+
+    <input id="cad-senha" type="password"
+      placeholder="Senha" minlength="6" required>
+
+    <input id="cad-confirmar" type="password"
+      placeholder="Confirmar senha" required>
+
+    <input id="cad-cidade" type="text"
+      placeholder="Digite sua cidade" required>
+
+    <input id="cad-endereco" type="text"
+      placeholder="Endereço de entrega" requir…
+  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
   const firebaseConfig = {
