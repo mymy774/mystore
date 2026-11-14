@@ -320,7 +320,7 @@
         <section id="waiting" hidden aria-live="polite"><div class="analysis" id="analysis"><span class="crow c1" aria-hidden="true">🐦‍⬛</span><span class="crow c2" aria-hidden="true">🐦‍⬛</span><span class="crow c3" aria-hidden="true">🐦‍⬛</span><span class="crow perched" aria-hidden="true">🐦‍⬛</span><div class="swarm" id="swarm" aria-hidden="true"></div><div id="statusBody"><h2 id="statusTitle">Em análise</h2><p id="statusNote">Aguardando a decisão do administrador.</p></div></div><div class="demo-tools"><button type="button" class="secondary" id="approve">Prévia: ADM aceita</button><button type="button" class="secondary" id="reject">Prévia: ADM recusa</button><button type="button" class="secondary" id="restart">Voltar ao início</button></div><p class="footnote">Botões apenas para testar as animações. Não são um painel ADM real.</p></section>
       </div>
     </main>
-    <footer>✿ My Store · Protótipo visual da primeira tela · Feito para celular</footer>
+    <footer>✿ My Store · seu mundo de ervas magicas</footer>
   </div>
   <script>
     const entry=document.getElementById('entry'), waiting=document.getElementById('waiting');
@@ -338,8 +338,7 @@
     photo.addEventListener('change',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);const file=photo.files?.[0];if(file){previewUrl=URL.createObjectURL(file);const avatar=document.getElementById('avatar');avatar.style.backgroundImage=`url("${previewUrl}")`;avatar.textContent='';}});
     function showWaiting(){clearTimers();entry.hidden=true;waiting.hidden=false;analysis.className='analysis';swarm.innerHTML='';document.getElementById('statusBody').hidden=false;title.textContent='Em análise';statusNote.textContent='Aguardando a decisão do administrador.';title.style.display='';document.getElementById('approve').disabled=false;document.getElementById('reject').disabled=false;later(()=>analysis.classList.add('resting'),120000);}
     document.getElementById('viewAnalysis').addEventListener('click',showWaiting);
-    document.getElementById('registerForm').addEventListener('submit',e=>{e.preventDefault();showWaiting();});
-    document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();showWaiting();});
+   
     function lockDemo(){clearTimers();document.getElementById('approve').disabled=true;document.getElementById('reject').disabled=true;}
     document.getElementById('approve').addEventListener('click',()=>{lockDemo();analysis.classList.add('approved');statusNote.textContent='';later(()=>{document.getElementById('statusBody').innerHTML='<div class="result">Acesso aprovado 🌿</div><p>Prévia: o catálogo será criado em outra etapa.</p>';},1600);});
     document.getElementById('reject').addEventListener('click',()=>{lockDemo();analysis.classList.add('rejected');statusNote.textContent='';for(let i=0;i<22;i++){let crow=document.createElement('span');crow.textContent='🐦‍⬛';crow.style.left=(8+(i*29)%82)+'%';crow.style.top=(13+(i*23)%67)+'%';crow.style.animationDelay=(-i*.17)+'s';swarm.appendChild(crow);}later(()=>{swarm.innerHTML='';document.getElementById('statusBody').innerHTML='<div class="result">Acesso bloqueado</div><p>Apenas uma simulação visual; nenhum usuário foi banido.</p>';},30000);});
@@ -410,7 +409,7 @@ async function carregarProdutos() {
     });
   } catch (erro) {
     console.error(erro);
-    lista.textContent = "Erro ao carregar produtos.";
+    lista.textContent = "faça seu cadstro.";
   }
 }
 
@@ -431,6 +430,78 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/13.2.0/firebase
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+    const {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  signOut
+} = await import(
+  "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js"
+);
+
+const auth = getAuth(app);
+
+const registerForm = document.getElementById("registerForm");
+const loginForm = document.getElementById("loginForm");
+
+function getCredentials(form) {
+  return {
+    email: form.querySelector('input[type="email"]')?.value.trim(),
+    password: form.querySelector('input[type="password"]')?.value
+  };
+}
+
+//deixaeuviver
+registerForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const { email, password } = getCredentials(registerForm);
+
+  if (!email || !password) return;
+
+  try {
+    const { user } = await createUserWithEmailAndPassword(
+      auth, email, password
+    );
+
+    try {
+      await sendEmailVerification(user);
+      alert("Conta criada. Verifique seu e-mail antes de entrar.");
+    } finally {
+      await signOut(auth);
+    }
+  } catch (error) {
+    console.error("Erro no cadastro:", error);
+    alert("Não foi possível concluir o cadastro. Confira seus dados.");
+  }
+});
+
+// Login de clientes
+loginForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const { email, password } = getCredentials(loginForm);
+
+  if (!email || !password) return;
+
+  try {
+    const { user } = await signInWithEmailAndPassword(
+      auth, email, password
+    );
+
+    if (!user.emailVerified) {
+      await signOut(auth);
+      alert("Verifique seu e-mail antes de entrar.");
+      return;
+    }
+
+    alert("Login realizado com sucesso.");
+  } catch (error) {
+    console.error("Erro no login:", error);
+    alert("Não foi possível entrar. Confira seu e-mail e senha.");
+  }
+});
 </script>
 </body>
 </html>
