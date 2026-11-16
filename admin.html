@@ -51,6 +51,13 @@
       <div class="actions"><button type="submit">Entrar</button></div>
     </form>
     <p class="muted">Só contas administrativas aprovadas e com e-mail verificado têm acesso.</p>
+  <div class="actions">
+  <button id="enviarVerificacao"
+          class="secondary"
+          type="button">
+    Enviar e-mail de verificação
+  </button>
+</div>
   </section>
 
   <section id="painel" hidden>
@@ -83,12 +90,12 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, reload }
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, reload, sendEmailverification }
     from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc }
     from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
-  // Configuração pública do Firebase da My Store.
+  
   const firebaseConfig = {
     apiKey: "AIzaSyD19nDStx93XHAc0DuVAN2PcyvtXi9RvBo",
     authDomain: "mystore-c3c60.firebaseapp.com",
@@ -139,6 +146,34 @@
       avisar("Falha no login. Confira o e-mail e a senha.");
     }
   });
+  el("enviarVerificacao").addEventListener("click", async () => {
+  const usuario = auth.currentUser;
+
+  if (!usuario) {
+    avisar("Primeiro entre com seu e-mail e senha.");
+    return;
+  }
+
+  const botao = el("enviarVerificacao");
+  botao.disabled = true;
+
+  try {
+    await reload(usuario);
+
+    if (usuario.emailVerified) {
+      avisar("Seu e-mail já está verificado.");
+      return;
+    }
+
+    await sendEmailVerification(usuario);
+    avisar("E-mail enviado! Confira sua caixa de entrada e spam.");
+  } catch (erro) {
+    console.error(erro);
+    avisar("Erro ao enviar: " + (erro.code || "desconhecido"));
+  } finally {
+    botao.disabled = false;
+  }
+});
   el("sair").addEventListener("click", () => signOut(auth));
   el("cancelar").addEventListener("click", limparFormulario);
 
