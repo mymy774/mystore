@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Store | Painel ADM</title>
+  <style>
+    :root { font-family: Arial, sans-serif; color: #244137; background: #eef5e9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 850px; margin: 36px auto; padding: 0 16px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    h2 { font-size: 19px; }
+    a { color: #244c3a; }
+    .card { background: white; padding: 22px; border-radius: 16px; margin: 18px 0;
+      box-shadow: 0 5px 20px #244c3a13; }
+    label { display: block; font-weight: bold; margin: 14px 0 5px; }
+    input:not([type="checkbox"]) { width: 100%; padding: 12px; border: 1px solid #b3c7b6;
+      border-radius: 9px; font: inherit; }
+    button { background: #244c3a; color: white; padding: 11px 15px;
+      border: 0; border-radius: 9px; cursor: pointer; font: inherit; }
+    button:disabled { opacity: .55; cursor: wait; }
+    button.secondary { background: #e5ede4; color: #244137; }
+    button.danger { background: #884b30; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    .item { padding: 14px 0; border-top: 1px solid #d9e4d8; }
+    .item strong { display: block; margin-bottom: 5px; }
+    .muted { color: #586b60; }
+    .check { display: flex; gap: 8px; align-items: center; }
+    .check input { width: 18px; height: 18px; }
+    #aviso { min-height: 1.5em; font-weight: 600; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>My Store — Painel ADM</h1><span class="muted">Gerenciamento de produtos</span></div>
+    <a href="index.html">Voltar à loja</a>
+  </header>
+  <p id="aviso" role="status" aria-live="polite">Verificando acesso...</p>
+
+  <section id="telaLogin" class="card" hidden>
+    <h2>Entrar como administrador</h2>
+    <form id="formLogin">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" required>
+      <div class="actions"><button type="submit">Entrar</button></div>
+    </form>
+    <p class="muted">Só contas administrativas aprovadas e com e-mail verificado têm acesso.</p>
+  </section>
+
+  <section id="painel" hidden>
+    <div class="card">
+      <div class="actions" style="justify-content:space-between;align-items:center">
+        <span id="usuarioAtual"></span>
+        <button id="sair" class="secondary" type="button">Sair</button>
+      </div>
+    </div>
+    <section class="card">
+      <h2 id="tituloFormulario">Cadastrar produto</h2>
+      <form id="formProduto">
+        <label for="nome">Nome do produto</label>
+        <input id="nome" maxlength="120" required placeholder="Ex.: Produto novo">
+        <label for="preco">Preço em reais</label>
+        <input id="preco" inputmode="decimal" required placeholder="Ex.: 19,90">
+        <label class="check" for="ativo"><input id="ativo" type="checkbox" checked> Produto ativo na loja</label>
+        <div class="actions">
+          <button id="salvar" type="submit">Cadastrar produto</button>
+          <button id="cancelar" class="secondary" type="button" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </section>
+    <section class="card">
+      <h2>Produtos cadastrados</h2>
+      <div id="listaProdutos">Carregando...</div>
+    </section>
+  </section>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, reload }
+    from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc }
+    from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+  // Configuração pública do Firebase da My Store.
+  const firebaseConfig = {
+    apiKey: "AIzaSyD19nDStx93XHAc0DuVAN2PcyvtXi9RvBo",
+    authDomain: "mystore-c3c60.firebaseapp.com",
+    projectId: "mystore-c3c60",
+    storageBucket: "mystore-c3c60.firebasestorage.app",
+    messagingSenderId: "695597457784",
+    appId: "1:695597457784:web:d9acbb86b0fc454902688d"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const el = id => document.getElementById(id);
+  let editandoId = null;
+  let produtos = [];
+  const moeda = centavos => (centavos / 100).toLocaleString("pt-BR", {
+    style: "currency", currency: "BRL"
+  });
+  function avisar(mensagem) { el("aviso").textContent = mensagem; }
+  function erroAmigavel(error) {
+    console.error(error);
+    return error?.code === "permission-denied"
+      ? "Permissão negada pelo Firestore. Precisamos conferir as regras do administrador."
+      : "Não foi possível concluir a operação. Confira a conexão e tente novamente.";
+  }
+  function limparFormulario() {
+    editandoId = null;
+    el("formProduto").reset();
+    el("ativo").checked = true;
+    el("tituloFormulario").textContent = "Cadastrar produto";
+    el("salvar").textContent = "Cadastrar produto";
+    el("cancelar").hidden = true;
+  }
+  function precoEmCentavos(texto) {
+    const valor = texto.trim();
+    if (!/^\d{1,6}([,.]\d{1,2})?$/.test(valor)) return null;
+    const partes = valor.replace(",", ".").split(".");
+    return Number(partes[0]) * 100 + Number((partes[1] || "").padEnd(2, "0"));
+  }
+
+  el("formLogin").addEventListener("submit", async event => {
+    event.preventDefault();
+    avisar("Entrando...");
+    try {
+      await signInWithEmailAndPassword(auth, el("email").value.trim(), el("senha").value);
+      el("senha").value = "";
+    } catch (error) {
+      console.error(error);
+      avisar("Falha no login. Confira o e-mail e a senha.");
+    }
+  });
+  el("sair").addEventListener("click", () => signOut(auth));
+  el("cancelar").addEventListener("click", limparFormulario);
+
+  onAuthStateChanged(auth, async user => {
+    el("painel").hidden = true;
+    el("telaLogin").hidden = true;
+    limparFormulario();
+    if (!user) {
+      el("telaLogin").hidden = false;
+      avisar("Entre com sua conta administrativa.");
+      return;
+    }
+    avisar("Verificando permissão de administrador...");
+    try {
+      await reload(user);
+      if (!user.emailVerified) {
+        el("telaLogin").hidden = false;
+        avisar("Verifique o e-mail desta conta antes de acessar o painel.");
+        return;
+      }
+      const perfil = await getDoc(doc(db, "usuarios", user.uid));
+      const dados = perfil.exists() ? perfil.data() : {};
+      const funcao = String(dados.funcao || "").trim().toLowerCase();
+      const status = String(dados.status || "").trim().toLowerCase();
+      if (!["admin", "adm", "administrador"].includes(funcao) || status !== "aprovado") {
+        el("telaLogin").hidden = false;
+        avisar("Acesso restrito: esta conta não é um administrador aprovado.");
+        return;
+      }
+      el("usuarioAtual").textContent = "Administrador: " + (user.email || "");
+      el("painel").hidden = false;
+      avisar("Acesso administrativo autorizado.");
+      await carregarProdutos();
+    } catch (error) {
+      el("telaLogin").hidden = false;
+      avisar(erroAmigavel(error));
+    }
+  });
+
+  async function carregarProdutos() {
+    try {
+      const resultado = await getDocs(collection(db, "produtos"));
+      produtos = resultado.docs.map(d => ({ id: d.id, ...d.data() }));
+      produtos.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+      mostrarProdutos();
+    } catch (error) {
+      el("listaProdutos").textContent = erroAmigavel(error);
+    }
+  }
+  function mostrarProdutos() {
+    const lista = el("listaProdutos");
+    lista.replaceChildren();
+    if (!produtos.length) { lista.textContent = "Nenhum produto cadastrado."; return; }
+    for (const p of produtos) {
+      const item = document.createElement("div");
+      item.className = "item";
+      const titulo = document.createElement("strong");
+      titulo.textContent = p.nome || "Produto sem nome";
+      const info = document.createElement("div");
+      info.textContent = moeda(Number(p.preco_centavos || 0)) + " — " + (p.ativo ? "Ativo" : "Inativo");
+      const botoes = document.createElement("div");
+      botoes.className = "actions";
+      const editar = document.createElement("button");
+      editar.type = "button";
+      editar.className = "secondary";
+      editar.textContent = "Editar";
+      editar.addEventListener("click", () => {
+        editandoId = p.id;
+        el("nome").value = p.nome || "";
+        el("preco").value = (Number(p.preco_centavos || 0) / 100).toFixed(2).replace(".", ",");
+        el("ativo").checked = p.ativo === true;
+        el("tituloFormulario").textContent = "Editar produto";
+        el("salvar").textContent = "Salvar alterações";
+        el("cancelar").hidden = false;
+        el("nome").focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      const alternar = document.createElement("button");
+      alternar.type = "button";
+      alternar.className = p.ativo ? "danger" : "secondary";
+      alternar.textContent = p.ativo ? "Desativar" : "Ativar";
+      alternar.addEventListener("click", async () => {
+        alternar.disabled = true;
+        try {
+          await updateDoc(doc(db, "produtos", p.id), { ativo: !p.ativo });
+          avisar("Status do produto atualizado.");
+          await carregarProdutos();
+        } catch (error) { avisar(erroAmigavel(error)); alternar.disabled = false; }
+      });
+      botoes.append(editar, alternar);
+      item.append(titulo, info, botoes);
+      lista.append(item);
+    }
+  }
+  el("formProduto").addEventListener("submit", async event => {
+    event.preventDefault();
+    const nome = el("nome").value.trim();
+    const preco_centavos = precoEmCentavos(el("preco").value);
+    if (!nome || preco_centavos === null) {
+      avisar("Informe o nome e um preço válido, por exemplo: 19,90.");
+      return;
+    }
+    const dados = { nome, preco_centavos, ativo: el("ativo").checked };
+    el("salvar").disabled = true;
+    try {
+      if (editandoId) {
+        await updateDoc(doc(db, "produtos", editandoId), dados);
+        avisar("Produto atualizado com sucesso.");
+      } else {
+        await addDoc(collection(db, "produtos"), dados);
+        avisar("Produto cadastrado com sucesso.");
+      }
+      limparFormulario();
+      await carregarProdutos();
+    } catch (error) { avisar(erroAmigavel(error)); }
+    finally { el("salvar").disabled = false; }
+  });
+</script>
+</body>
+</html>
