@@ -413,7 +413,43 @@ async function carregarProdutos() {
   }
 }
 
-carregarProdutos();
+import { getAuth, onAuthStateChanged, reload } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+onAuthStateChanged(getAuth(app), async (usuario) => {
+  const lista = document.getElementById("lista-produtos");
+
+  if (!usuario) {
+    lista.textContent = "Entre na sua conta para visualizar os produtos.";
+    return;
+  }
+
+  try {
+    await reload(usuario);
+    await usuario.getIdToken(true);
+
+    if (!usuario.emailVerified) {
+      lista.textContent = "Verifique seu e-mail para continuar.";
+      return;
+    }
+
+    const cadastro = await getDoc(doc(db, "usuarios", usuario.uid));
+    const dados = cadastro.data();
+
+    const autorizado = dados?.status === "aprovado" &&
+      ["cliente", "ADM", "vendedor", "atendimento"].includes(dados.funcao);
+
+    if (!autorizado) {
+      lista.textContent = "Seu cadastro está aguardando aprovação.";
+      return;
+    }
+
+    await carregarProdutos();
+  } catch (erro) {
+    console.error("Erro ao verificar acesso:", erro);
+    lista.textContent = "Não foi possível verificar seu acesso.";
+  }
+});
 </script>
 <!-- FIM DO CATÁLOGO -->
 
