@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaf2e3">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>My Store | Gestão</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <script type="module" src="./js/painel.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-symbol" aria-hidden="true">✿</span>
+        <span><strong>My Store</strong><small>Área interna</small></span>
+      </a>
+      <button class="secondary" type="button" id="sair">Sair</button>
+    </header>
+    <main class="page-main">
+      <div class="page-heading">
+        <span class="eyebrow">✦ ÁREA RESTRITA ✦</span>
+        <h1>Painel de gestão</h1>
+        <p id="identificacao">Conferindo suas permissões...</p>
+      </div>
+      <p id="mensagem" class="message" role="status" aria-live="polite">Validando acesso...</p>
+      <div id="conteudo" hidden>
+        <section id="areaLoja" class="card shop-control" hidden>
+          <div>
+            <h2>Abertura e fechamento</h2>
+            <p id="estadoLoja">Consultando...</p>
+            <p id="atualizacaoLoja" class="note"></p>
+            <button id="alternarLoja" type="button" class="primary" disabled>Carregando...</button>
+          </div>
+          <div class="cup-area" id="areaXicara" hidden>
+            <svg class="big-cup" id="xicara" viewBox="0 0 280 270" role="img" aria-label="Xícara de chá vista de lado">
+              <defs>
+                <linearGradient id="porcelana" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#fffef8"/>
+                  <stop offset="1" stop-color="#d1dfd4"/>
+                </linearGradient>
+              </defs>
+              <g class="cup-steam" aria-hidden="true">
+                <path d="M95 73 C75 53 115 38 96 12"/>
+                <path d="M139 73 C119 53 158 37 139 10"/>
+                <path d="M182 73 C163 53 200 36 181 11"/>
+              </g>
+              <ellipse class="cup-saucer" cx="136" cy="235" rx="110" ry="18"/>
+              <path class="cup-handle" d="M204 121 C272 100 267 208 203 195" fill="none" stroke-width="26" stroke-linecap="round"/>
+              <path class="cup-body" d="M52 103 L221 103 L211 194 Q205 228 142 228 L121 228 Q68 226 62 194 Z"/>
+              <ellipse class="cup-rim" cx="136" cy="103" rx="85" ry="19"/>
+              <ellipse class="cup-liquid" cx="136" cy="103" rx="74" ry="12"/>
+              <path d="M83 154 Q91 210 139 210" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="9" stroke-linecap="round"/>
+            </svg>
+            <p class="note">Indicador exclusivo do ADM: chá verde com vapor quando aberta; chá preto sem vapor quando fechada.</p>
+          </div>
+        </section>
+        <section class="card" id="areaAprovacoes" hidden>
+          <h2>Solicitações de cadastro</h2>
+          <p class="hint">Somente o ADM pode aprovar ou recusar.</p>
+          <div id="listaPendentes" class="requests">Carregando...</div>
+        </section>
+        <section class="card" id="areaProdutos" hidden>
+          <h2>Produtos e estoque</h2>
+          <p class="hint">Gerenciamento básico exclusivo do ADM. Não cria pedidos nem movimentações financeiras.</p>
+          <form id="formProduto">
+            <div class="fields">
+              <label class="full">Nome *<input id="produtoNome" maxlength="120" required></label>
+              <label>Preço em reais *<input id="produtoPreco" inputmode="decimal" placeholder="19,90" required></label>
+              <label>Quantidade em estoque<input id="produtoEstoque" type="number" min="0" max="1000000" step="1" value="0" required></label>
+              <label>Limite mínimo de estoque<input id="produtoMinimo" type="number" min="0" max="1000000" step="1" value="0" required></label>
+              <label class="check"><input type="checkbox" id="produtoAtivo" checked> Produto ativo</label>
+            </div>
+            <button class="primary" id="salvarProduto" type="submit">Cadastrar produto</button>
+            <button class="secondary" id="cancelarEdicao" type="button" hidden>Cancelar edição</button>
+          </form>
+          <h3>Produtos cadastrados</h3>
+          <div id="listaGestaoProdutos" class="requests">Carregando...</div>
+        </section>
+        <section class="card" id="areaHistorico" hidden>
+          <h2>Histórico de abertura/fechamento</h2>
+          <div id="listaHistorico" class="requests">Carregando...</div>
+        </section>
+        <section class="card" id="areaReservas">
+          <h2>Áreas por função</h2>
+          <p class="hint">Estruturas reservadas. Informações operacionais ainda não estão liberadas.</p>
+          <div class="role-grid" id="cardsFuncoes">
+            <article class="role-item" data-funcoes="ADM,vendedor,atendimento">
+              <span class="role-tag">Atendimento</span>
+              <h3>Pedidos e vendas</h3>
+              <p>Futuro atendimento, fiados, cobranças e solicitações de reposição.</p>
+            </article>
+            <article class="role-item" data-funcoes="ADM,separacao">
+              <span class="role-tag">Separação</span>
+              <h3>Montagem</h3>
+              <p>Futura fila de pedidos, itens e informação de troco.</p>
+            </article>
+            <article class="role-item" data-funcoes="ADM,entregador">
+              <span class="role-tag">Entregador</span>
+              <h3>Rotas e entregas</h3>
+              <p>Futuro código de entrega, localização e botão de chegada.</p>
+            </article>
+            <article class="role-item" data-funcoes="ADM,estoquista">
+              <span class="role-tag">Estoque</span>
+              <h3>Inventário</h3>
+              <p>Futuro painel do estoquista com alertas de reposição.</p>
+            </article>
+            <article class="role-item" data-funcoes="ADM,afiliado">
+              <span class="role-tag">Afiliados</span>
+              <h3>Vendedores avulsos</h3>
+              <p>Futuras indicações, vendas atribuídas e comissões individuais.</p>
+            </article>
+            <article class="role-item" data-funcoes="ADM">
+              <span class="role-tag">Administração</span>
+              <h3>Vendas, operações e finanças</h3>
+              <p>Futuros indicadores, gráficos e relatórios por período.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer>✿ My Store · Acesso restrito por perfil</footer>
+  </div>
+</body>
+</html>
