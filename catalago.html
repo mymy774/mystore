@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaf2e3"><meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>My Store | Catálogo</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <script type="module" src="./js/catalogo.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <a class="brand" href="./index.html"><span class="brand-symbol" aria-hidden="true">✿</span><span><strong>My Store</strong><small>Nosso pequeno jardim</small></span></a>
+      <button class="secondary" type="button" id="sair">Sair</button>
+    </header>
+    <main class="page-main">
+      <div class="page-heading"><span class="eyebrow">✦ SEU JARDIM ✦</span><h1>Produtos selecionados</h1><p id="boasVindas">Verificando acesso...</p></div>
+      <p id="mensagem" class="message" role="status" aria-live="polite">Carregando com segurança...</p>
+      <section id="conteudo" hidden>
+        <p class="shop-note" id="avisoLoja">Consultando o horário de atendimento...</p>
+        <div id="listaProdutos" class="product-grid"></div>
+        <p class="note">Catálogo de consulta. Pedidos e pagamentos ainda não estão ativos nesta etapa.</p>
+      </section>
+    </main>
+    <footer>✿ My Store · Catálogo restrito a clientes aprovados</footer>
+  </div>
+</body>
+</html>
