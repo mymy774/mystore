@@ -1,0 +1,458 @@
+rules_version = '2';
+
+// MY STORE - REGRAS PARA TESTES.
+// Nao publicar em producao sem validar no Firebase Emulator.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function usuarioPath() {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid);
+    }
+
+    function lojaPath() {
+      return /databases/$(database)/documents/configuracoes/loja;
+    }
+
+    function eventoPath(id) {
+      return /databases/$(database)/documents/historico_loja/$(id);
+    }
+
+    function perfilAprovado(papel) {
+      return autenticado()
+        && request.auth.token.email_verified == true
+        && exists(usuarioPath())
+        && get(usuarioPath()).data.status == 'aprovado'
+        && get(usuarioPath()).data.funcao == papel;
+    }
+
+    function admin() {
+      return perfilAprovado('ADM');
+    }
+
+    function atendimento() {
+      return perfilAprovado('vendedor') ||
+        perfilAprovado('atendimento');
+    }
+
+    function cliente() {
+      return perfilAprovado('cliente');
+    }
+
+    // Apenas o proprio cliente cria cadastro pendente.
+    function cadastroNovoValido(uid) {
+      let d = request.resource.data;
+
+      return autenticado()
+        && request.auth.uid == uid
+        && request.auth.token.email == d.email
+
+        && d.keys().hasOnly([
+          'nome', 'telefone', 'cidade',
+          'endereco', 'email', 'indicador',
+          'funcao', 'status', 'criadoEm'
+        ])
+
+        && d.keys().hasAll([
+          'nome', 'telefone', 'cidade',
+          'endereco', 'email', 'indicador',
+          'funcao', 'status', 'criadoEm'
+        ])
+
+        && d.funcao == 'cliente'
+        && d.status == 'pendente'
+        && d.criadoEm == request.time
+
+        && d.nome is string
+        && d.nome.size() >= 2
+        && d.nome.size() <= 100
+
+        && d.telefone is string
+        && d.telefone.size() >= 8
+        && d.telefone.size() <= 25
+
+        && d.cidade is string
+        && d.cidade.size() >= 2
+        && d.cidade.size() <= 100
+
+        && d.endereco is string
+        && d.endereco.size() <= 220
+
+        && d.email is string
+        && d.email.size() >= 3
+        && d.email.size() <= 254
+
+        && d.indicador is map
+
+        && d.indicador.keys().hasOnly([
+          'nome', 'email', 'telefone'
+        ])
+
+        && d.indicador.keys().hasAll([
+          'nome', 'email', 'telefone'
+        ])
+
+        && d.indicador.nome is string
+        && d.indicador.nome.size() >= 2
+        && d.indicador.nome.size() <= 100
+
+        && d.indicador.email is string
+        && d.indicador.email.size() >= 3
+        && d.indicador.email.size() <= 254
+
+        && d.indicador.telefone is string
+        && d.indicador.telefone.size() >= 8
+        && d.indicador.telefone.size() <= 25;
+    }
+
+    // Somente o ADM altera o status do cadastro.
+    function revisaoCadastroValida() {
+      let novo = request.resource.data;
+
+      let mudancas = novo.diff(
+        resource.data
+      ).affectedKeys();
+
+      return resource.data.funcao == 'cliente'
+        && resource.data.status == 'pendente'
+
+        && mudancas.hasOnly([
+          'status', 'revisadoPor', 'revisadoEm'
+        ])
+
+        && mudancas.hasAll([
+          'status', 'revisadoPor', 'revisadoEm'
+        ])
+
+        && novo.status in [
+          'aprovado', 'recusado'
+        ]
+
+        && novo.revisadoPor == request.auth.uid
+        && novo.revisadoEm == request.time;
+    }
+
+    match /usuarios/{usuarioId} {
+
+      allow get: if admin() ||
+        (
+          autenticado() &&
+          request.auth.uid == usuarioId
+        );
+
+      allow list: if admin();
+
+      allow create: if cadastroNovoValido(
+        usuarioId
+      );
+
+      allow update: if admin() &&
+        revisaoCadastroValida();
+
+      allow delete: if false;
+    }
+
+    // Validacao dos dados dos produtos.
+    function produtoValido() {
+      let d = request.resource.data;
+
+      return d.keys().hasOnly([
+          'nome', 'ativo', 'preco_centavos',
+          'estoque', 'estoque_minimo',
+          'criadoEm', 'atualizadoEm'
+        ])
+
+        && d.keys().hasAll([
+          'nome', 'ativo', 'preco_centavos',
+          'estoque', 'estoque_minimo',
+          'atualizadoEm'
+        ])
+
+        && d.nome is string
+        && d.nome.size() >= 2
+        && d.nome.size() <= 120
+
+        && d.ativo is bool
+
+        && d.preco_centavos is int
+        && d.preco_centavos >= 0
+        && d.preco_centavos <= 99999999
+
+        && d.estoque is int
+        && d.estoque >= 0
+        && d.estoque <= 1000000
+
+        && d.estoque_minimo is int
+        && d.estoque_minimo >= 0
+        && d.estoque_minimo <= 1000000
+
+        && d.atualizadoEm == request.time;
+    }
+
+    match /produtos/{produtoId} {
+
+      allow get, list: if admin() ||
+        (
+          (cliente() || atendimento()) &&
+          resource.data.ativo == true
+        );
+
+      allow create: if admin()
+        && produtoValido()
+
+        && request.resource.data.keys().hasAll([
+          'criadoEm'
+        ])
+
+        && request.resource.data.criadoEm ==
+          request.time;
+
+      allow update: if admin()
+        && produtoValido()
+
+        && request.resource.data.diff(
+          resource.data
+        ).affectedKeys().hasOnly([
+          'nome', 'ativo', 'preco_centavos',
+          'estoque', 'estoque_minimo',
+          'atualizadoEm'
+        ]);
+
+      allow delete: if false;
+    }
+
+    // Abertura e fechamento com historico obrigatorio.
+    function cabecalhoLojaValido() {
+      let d = request.resource.data;
+
+      return d.keys().hasOnly([
+          'aberta', 'alteradoEm', 'alteradoPor',
+          'eventoId', 'versao'
+        ])
+
+        && d.keys().hasAll([
+          'aberta', 'alteradoEm', 'alteradoPor',
+          'eventoId', 'versao'
+        ])
+
+        && d.aberta is bool
+        && d.alteradoEm == request.time
+        && d.alteradoPor == request.auth.uid
+
+        && d.eventoId is string
+        && d.eventoId.size() >= 1
+        && d.eventoId.size() <= 128
+
+        && d.versao is int
+        && d.versao >= 1;
+    }
+
+    function eventoNovoCorresponde(
+      antes, depois, versao
+    ) {
+      let id = request.resource.data.eventoId;
+
+      return !exists(eventoPath(id))
+
+        && existsAfter(eventoPath(id))
+
+        && getAfter(
+          eventoPath(id)
+        ).data.eventoId == id
+
+        && getAfter(
+          eventoPath(id)
+        ).data.abertaAntes == antes
+
+        && getAfter(
+          eventoPath(id)
+        ).data.abertaDepois == depois
+
+        && getAfter(
+          eventoPath(id)
+        ).data.versao == versao
+
+        && getAfter(
+          eventoPath(id)
+        ).data.alteradoPor == request.auth.uid
+
+        && getAfter(
+          eventoPath(id)
+        ).data.alteradoEm == request.time;
+    }
+
+    function criarLojaValida() {
+      return cabecalhoLojaValido()
+
+        && request.resource.data.versao == 1
+
+        && request.resource.data.aberta == true
+
+        && eventoNovoCorresponde(
+          false, true, 1
+        );
+    }
+
+    function atualizarLojaValida() {
+      return cabecalhoLojaValido()
+
+        && resource.data.aberta is bool
+        && resource.data.versao is int
+
+        && request.resource.data.aberta !=
+          resource.data.aberta
+
+        && request.resource.data.versao ==
+          resource.data.versao + 1
+
+        && request.resource.data.eventoId !=
+          resource.data.eventoId
+
+        && request.resource.data.diff(
+          resource.data
+        ).affectedKeys().hasOnly([
+          'aberta', 'alteradoEm', 'alteradoPor',
+          'eventoId', 'versao'
+        ])
+
+        && eventoNovoCorresponde(
+          resource.data.aberta,
+          request.resource.data.aberta,
+          request.resource.data.versao
+        );
+    }
+
+    match /configuracoes/{configId} {
+
+      allow get: if configId == 'loja' &&
+        (
+          admin() ||
+          atendimento() ||
+          cliente()
+        );
+
+      allow list: if false;
+
+      allow create: if configId == 'loja'
+        && (admin() || atendimento())
+        && criarLojaValida();
+
+      allow update: if configId == 'loja'
+        && (admin() || atendimento())
+        && atualizarLojaValida();
+
+      allow delete: if false;
+    }
+
+    // Verificacao do evento de historico.
+    function historicoValido(id) {
+      let d = request.resource.data;
+
+      return d.keys().hasOnly([
+          'eventoId', 'abertaAntes',
+          'abertaDepois', 'alteradoEm',
+          'alteradoPor', 'versao'
+        ])
+
+        && d.keys().hasAll([
+          'eventoId', 'abertaAntes',
+          'abertaDepois', 'alteradoEm',
+          'alteradoPor', 'versao'
+        ])
+
+        && d.eventoId == id
+
+        && d.abertaAntes is bool
+        && d.abertaDepois is bool
+
+        && d.abertaAntes != d.abertaDepois
+
+        && d.alteradoPor == request.auth.uid
+
+        && d.alteradoEm == request.time
+
+        && d.versao is int
+        && d.versao >= 1;
+    }
+
+    function historicoAcompanhaLoja(id) {
+      let d = request.resource.data;
+
+      return existsAfter(lojaPath())
+
+        && getAfter(
+          lojaPath()
+        ).data.eventoId == id
+
+        && getAfter(
+          lojaPath()
+        ).data.aberta == d.abertaDepois
+
+        && getAfter(
+          lojaPath()
+        ).data.alteradoEm == request.time
+
+        && getAfter(
+          lojaPath()
+        ).data.alteradoPor == request.auth.uid
+
+        && getAfter(
+          lojaPath()
+        ).data.versao == d.versao
+
+        && (
+          (
+            !exists(lojaPath())
+            && d.versao == 1
+            && d.abertaAntes == false
+            && d.abertaDepois == true
+          )
+
+          ||
+
+          (
+            exists(lojaPath())
+
+            && get(
+              lojaPath()
+            ).data.versao is int
+
+            && d.versao == get(
+              lojaPath()
+            ).data.versao + 1
+
+            && d.abertaAntes == get(
+              lojaPath()
+            ).data.aberta
+          )
+        );
+    }
+
+    match /historico_loja/{eventoId} {
+
+      allow get, list: if admin();
+
+      allow create: if (
+        admin() || atendimento()
+      )
+
+        && historicoValido(eventoId)
+
+        && historicoAcompanhaLoja(eventoId);
+
+      allow update, delete: if false;
+    }
+
+    // Bloqueio padrao para tudo que nao foi autorizado.
+    // Inclui pedidos, pagamentos, fiado,
+    // comissoes, catalogo oculto e futuras colecoes.
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
